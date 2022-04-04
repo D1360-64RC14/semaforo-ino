@@ -1,7 +1,5 @@
 #include <Arduino.h>
 
-#include "LightPins.cpp"
-
 class TrafficLights {
     public: // vars
         enum STATES : int { RED, YELLOW, GREEN };
@@ -9,19 +7,21 @@ class TrafficLights {
 
     private: // vars
         LightPins* light_pins;
-        unsigned long yellow_light_tresh;
+        unsigned long yellow_light_threshold;
 
     public: // funcs
         TrafficLights(
             LightPins* light_pins,
-            unsigned long yellow_light_tresh = 20
+            unsigned long yellow_light_threshold = 20
         ):
             light_pins(light_pins),
-            yellow_light_tresh(yellow_light_tresh)
-        {}
+            yellow_light_threshold(yellow_light_threshold)
+        {
+            change_to(STATES::RED);
+        }
 
         void startTimer(unsigned long red_delay_ms, unsigned long green_delay_ms) {
-            unsigned long yellow_wait = yellow_light_tresh * red_delay_ms / 100ul;
+            unsigned long yellow_wait = yellow_light_threshold * red_delay_ms / 100ul;
             unsigned long red_wait = red_delay_ms - yellow_wait;
 
             change_to(STATES::RED);
@@ -32,15 +32,13 @@ class TrafficLights {
 
             change_to(STATES::GREEN);
             delay(green_delay_ms);
+        }
 
+        void restart() {
             change_to(STATES::RED);
         }
 
-#if DEBUG
-    public:
-#else
     private: // funcs
-#endif
         void change_to(STATES state) {
             actual_state = state;
 

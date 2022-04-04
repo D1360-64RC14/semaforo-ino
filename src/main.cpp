@@ -1,10 +1,8 @@
-#define DEBUG true
-
 #include <Arduino.h>
 #include <HCSR04.h>
 
-#include "../lib/TrafficLights.cpp"
 #include "../lib/LightPins.cpp"
+#include "../lib/TrafficLights.cpp"
 
 
 #define LED_RED    2
@@ -14,8 +12,13 @@
 #define LED_PE_RED   5
 #define LED_PE_GREEN 6
 
-#define SENSOR_TRIGGER 7
-#define SENSOR_ECHO    8
+#define SENSOR_TRIGGER 8
+#define SENSOR_ECHO    9
+
+#define TRAFFIC_DISTANCE         20.0 // cm
+#define TRAFFIC_RED_DELAY        10   // seconds
+#define TRAFFIC_GREEN_DELAY      2    // seconds
+#define TRAFFIC_YELLOW_THRESHOLD 50   // %
 
 UltraSonicDistanceSensor ultrassonic(
     SENSOR_TRIGGER,
@@ -30,19 +33,35 @@ LightPins light_pins(
     LED_PE_GREEN
 );
 
-TrafficLights traffic_lights(&light_pins);
+TrafficLights traffic_lights(&light_pins, TRAFFIC_YELLOW_THRESHOLD);
 
 void setup() {
     Serial.begin(9600);
 }
 
+long ultrassonic_distance = 0.0;
+
+void ultrassonic_update() {
+    float new_measure = ultrassonic.measureDistanceCm();
+
+    if (new_measure >= 0.0) {
+        ultrassonic_distance = new_measure;
+    }
+
+    delay(100);
+}
+
 void loop() {
-    traffic_lights.change_to(TrafficLights::RED);
-    delay(500);
+    ultrassonic_update();
 
-    traffic_lights.change_to(TrafficLights::YELLOW);
-    delay(500);
+    if (ultrassonic_distance < TRAFFIC_DISTANCE) {
+        traffic_lights.startTimer(TRAFFIC_RED_DELAY * 1000, TRAFFIC_GREEN_DELAY * 1000);
 
-    traffic_lights.change_to(TrafficLights::GREEN);
-    delay(500);
+        while (ultrassonic_distance < TRAFFIC_DISTANCE) {
+            delay(500);
+            ultrassonic_update();
+        }
+
+        traffic_lights.restart();
+    }
 }

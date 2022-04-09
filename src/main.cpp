@@ -1,8 +1,7 @@
 #include <Arduino.h>
 #include <HCSR04.h>
 
-#include "../lib/LightPins.cpp"
-#include "../lib/TrafficLights.cpp"
+#include <TrafficLights.cpp>
 
 
 #define LED_RED    2
@@ -33,7 +32,7 @@ LightPins light_pins(
     LED_PE_GREEN
 );
 
-TrafficLights traffic_lights(&light_pins, TRAFFIC_YELLOW_THRESHOLD);
+TrafficLights traffic_lights(light_pins, TRAFFIC_YELLOW_THRESHOLD);
 
 void setup() {
     Serial.begin(9600);

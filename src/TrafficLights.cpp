@@ -2,20 +2,23 @@
 
 #include <LightPins.cpp>
 
+/**
+ * Classe responsável pelo controle (não lógica) do semáforo.
+ *
+ * Aceita o funcionamento apenas das luzes básicas, sendo o semáforo de
+ * pedestres opcional.
+ */
 class TrafficLights {
     public: // vars
         enum States: int { RED, YELLOW, GREEN };
 
     private: // vars
         const LightPins& light_pins;
-        const uint64_t yellow_light_threshold;
+        const uint64_t yellow_light_threshold = 20; // in percents
         States actual_state = RED;
 
     public: // funcs
-        TrafficLights(LightPins& light_pins):
-            light_pins(light_pins),
-            yellow_light_threshold(20)
-        {
+        TrafficLights(LightPins& light_pins): light_pins(light_pins) {
             change_to_state(RED);
         }
 
@@ -26,6 +29,17 @@ class TrafficLights {
             change_to_state(RED);
         }
 
+        /**
+         * Realiza a temporização do sinal e troca de estados (luzes).
+         * 
+         * (yellow_light_threshold)% do sinal vermelho será o tempo do sinal
+         * amarelo.
+         * 
+         * @param red_delay_ms: tempo em que o semáforo permanecerá na luz
+         * vermelha após o acionamento da função.
+         * @param green_delay_ms: tempo mínimo em que o semáforo permanecerá na
+         * luz verde antes de sair da função.
+         */
         void startTimer(uint64_t red_delay_ms, uint64_t green_delay_ms) {
             uint64_t yellow_wait = yellow_light_threshold * red_delay_ms / 100ul;
             uint64_t red_wait = red_delay_ms - yellow_wait;
@@ -40,6 +54,9 @@ class TrafficLights {
             delay(green_delay_ms);
         }
 
+        /**
+         * Finaliza o semáforo voltando ao sinal vermelho.
+         */
         void restart() {
             change_to_state(RED);
         }
@@ -49,11 +66,28 @@ class TrafficLights {
         }
 
     private: // funcs
+        /**
+         * Muda o estado do semáforo.
+         * 
+         * @param state: estado ao qual o semáforo será modificado.
+         */
         void change_to_state(States state) {
+            // 1. Define novo estado;
             actual_state = state;
 
+            // 2. Apaga as luzes;
             clear_lights();
 
+            /**
+             * 3. Liga apenas as luzes pertencentes ao estado.
+             * 
+             * |   Luzes   | Luzes de |
+             * | Primárias | Pedestre |
+             * |-----------|----------|
+             * |  Vermelha | Verde    |
+             * |   Amarela | Vermelha |
+             * |     Verde | Vermelha |
+             */
             switch (state) {
                 case States::RED:
                     digitalWrite(light_pins.light_red, HIGH);
@@ -81,6 +115,7 @@ class TrafficLights {
             }
         }
 
+        // Desliga todas as luzes primárias e de pedestre
         void clear_lights() {
             uint8_t scan_range = 3;
 

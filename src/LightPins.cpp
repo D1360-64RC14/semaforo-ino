@@ -1,5 +1,6 @@
 #include <Arduino.h>
 
+// Classe responsável por armazenar todos os pinos.
 class LightPins {
     public: // vars
         const uint8_t pin_array[5];

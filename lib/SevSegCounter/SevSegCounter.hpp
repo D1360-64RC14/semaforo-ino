@@ -18,13 +18,13 @@ namespace SevSegCounter {
 
         public: // funcs
             Pins(
-                const uint8_t pin_A,
-                const uint8_t pin_B,
-                const uint8_t pin_C,
-                const uint8_t pin_D,
-                const uint8_t pin_E,
-                const uint8_t pin_F,
-                const uint8_t pin_G
+                uint8_t pin_A,
+                uint8_t pin_B,
+                uint8_t pin_C,
+                uint8_t pin_D,
+                uint8_t pin_E,
+                uint8_t pin_F,
+                uint8_t pin_G
             );
     };
 
@@ -40,16 +40,16 @@ namespace SevSegCounter {
         public: // funcs
             /**
              * @param display_type: Tipo de display (Catodo ou Anodo comum).
-             * @param segseg_pins:  Objeto contendo os pinos para controle do
+             * @param sevseg_pins:  Objeto contendo os pinos para controle do
              * display.
              */
-            Controller(DisplayTypes display_type, Pins& segseg_pins);
+            Controller(DisplayTypes display_type, Pins& sevseg_pins);
 
             /**
              * Realiza do delay necessário exibindo o progresso (segundos) no
              * display de 7 seguimentos.
              * 
-             * Aceita contagens crescentes e decescentes.
+             * Aceita contagens crescentes e decrescentes.
              * Exemplos:
              * ```cpp
              * delay(0, 5); // Contagem de 0 a 5 segundos.

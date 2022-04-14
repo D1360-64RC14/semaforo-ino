@@ -42,12 +42,11 @@ namespace TrafficLights {
     class Controller {
         private: // vars
             const Pins& light_pins;
-            const uint64_t yellow_light_threshold; // in percents
-            States actual_state;
-            const SevSegCounter::Controller* sevseg_counter;
-            const bool has_sevseg;
+            const uint64_t yellow_light_threshold = 20; // in percents
+            States actual_state = RED;
 
         public: // funcs
+            explicit
             Controller(Pins& light_pins);
 
             Controller(Pins& light_pins, uint64_t yellow_light_threshold);
@@ -71,8 +70,6 @@ namespace TrafficLights {
             void restart();
 
             States get_actual_state();
-
-            void assign_module(const SevSegCounter::Controller& sevseg_counter);
 
         private: // funcs
             /**

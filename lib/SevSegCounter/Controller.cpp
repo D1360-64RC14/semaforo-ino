@@ -1,26 +1,28 @@
 #include <Arduino.h>
-#include <SevSeg.h>
+#include "SevSegCounter.hpp"
 
-class SevenSegCounter {
+class SevSegCounter::Controller {
     public: // vars
-        enum DisplayTypes : uint8_t { COMM_CATHODE, COMM_ANODE };
+        const DisplayTypes display_type;
 
     private: // vars
         SevSeg display;
-        const uint8_t*& pin_array;
+        const Pins& sevseg_pins;
 
     public: // funcs
-        SevenSegCounter(
+        Controller(
             DisplayTypes display_type,
-            const uint8_t*& pin_array
-        ): pin_array(pin_array) {
+            Pins& segseg_pins
+        ): sevseg_pins(sevseg_pins), display_type(display_type) {
             uint8_t hardware = COMMON_ANODE;
 
             if (display_type == DisplayTypes::COMM_CATHODE) {
                 hardware = COMMON_CATHODE;
             }
 
-            display.begin(hardware, 1, {}, pin_array, true);
+            display.begin(hardware, 1, {}, sevseg_pins.pin_array, true);
+
+            end();
         }
 
         void delay(uint8_t sec_start, uint8_t sec_end) {
@@ -37,13 +39,14 @@ class SevenSegCounter {
 
                 display.setNumber(actual_sec);
                 display.refreshDisplay();
-                
+
                 // :: é usado para acessar a alternativa global da função.
                 ::delay(1000);
             }
 
             end();
         }
+
 
     private: // funcs
         void end() {

@@ -1,7 +1,7 @@
 #include <Arduino.h>
 #include <HCSR04.h>
 
-#include <TrafficLights.cpp>
+#include <TrafficLights.hpp>
 
 // Pinos do Semáforo
 #define LED_RED    2
@@ -26,7 +26,7 @@ UltraSonicDistanceSensor ultrassonic(
     SENSOR_ECHO
 );
 
-LightPins light_pins(
+TrafficLights::Pins light_pins(
     LED_RED,
     LED_YELLOW,
     LED_GREEN,
@@ -34,7 +34,7 @@ LightPins light_pins(
     LED_PE_GREEN
 );
 
-TrafficLights traffic_lights(light_pins, TRAFFIC_YELLOW_THRESHOLD);
+TrafficLights::Controller traffic_lights(light_pins, TRAFFIC_YELLOW_THRESHOLD);
 
 void setup() {
     Serial.begin(9600);

@@ -1,7 +1,7 @@
 #include <Arduino.h>
+#include "TrafficLights.hpp"
 
-// Classe responsável por armazenar todos os pinos.
-class LightPins {
+class TrafficLights::Pins {
     public: // vars
         const uint8_t pin_array[5];
         const bool has_ped_lights;
@@ -15,7 +15,7 @@ class LightPins {
 
 
     public: // funcs
-        LightPins(
+        Pins(
             uint8_t light_red,
             uint8_t light_yellow,
             uint8_t light_green
@@ -36,8 +36,8 @@ class LightPins {
                 pinMode(pin_array[i], OUTPUT);
             }
         }
-
-        LightPins(
+        
+        Pins(
             uint8_t light_red,
             uint8_t light_yellow,
             uint8_t light_green,

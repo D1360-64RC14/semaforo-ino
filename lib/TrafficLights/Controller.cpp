@@ -1,51 +1,37 @@
 #include <Arduino.h>
+#include "TrafficLights.hpp"
 
-#include <LightPins.cpp>
-
-/**
- * Classe responsável pelo controle (não lógica) do semáforo.
- *
- * Aceita o funcionamento apenas das luzes básicas, sendo o semáforo de
- * pedestres opcional.
- */
-class TrafficLights {
-    public: // vars
-        enum States: int { RED, YELLOW, GREEN };
-
+class TrafficLights::Controller {
     private: // vars
-        const LightPins& light_pins;
-        const uint64_t yellow_light_threshold = 20; // in percents
+        const Pins& light_pins;
+        const uint64_t yellow_light_threshold = 20;
         States actual_state = RED;
 
+        // -- Modules --
+        SevSegCounter::Controller* module_sevseg_counter = nullptr;
+
     public: // funcs
-        TrafficLights(LightPins& light_pins): light_pins(light_pins) {
+        Controller(Pins& light_pins): light_pins(light_pins) {
             change_to_state(RED);
         }
 
-        TrafficLights(LightPins& light_pins, uint64_t yellow_light_threshold):
+        Controller(Pins& light_pins, uint64_t yellow_light_threshold):
             light_pins(light_pins),
             yellow_light_threshold(yellow_light_threshold)
         {
             change_to_state(RED);
         }
 
-        /**
-         * Realiza a temporização do sinal e troca de estados (luzes).
-         * 
-         * (yellow_light_threshold)% do sinal vermelho será o tempo do sinal
-         * amarelo.
-         * 
-         * @param red_delay_ms: tempo em que o semáforo permanecerá na luz
-         * vermelha após o acionamento da função.
-         * @param green_delay_ms: tempo mínimo em que o semáforo permanecerá na
-         * luz verde antes de sair da função.
-         */
         void startTimer(uint64_t red_delay_ms, uint64_t green_delay_ms) {
             uint64_t yellow_wait = yellow_light_threshold * red_delay_ms / 100ul;
             uint64_t red_wait = red_delay_ms - yellow_wait;
 
             change_to_state(RED);
-            delay(red_wait);
+            if (module_sevseg_counter != nullptr) {
+                module_sevseg_counter->delay(red_wait / 1000, 0);
+            } else {
+                delay(red_wait);
+            }
 
             change_to_state(YELLOW);
             delay(yellow_wait);
@@ -54,9 +40,6 @@ class TrafficLights {
             delay(green_delay_ms);
         }
 
-        /**
-         * Finaliza o semáforo voltando ao sinal vermelho.
-         */
         void restart() {
             change_to_state(RED);
         }
@@ -65,12 +48,11 @@ class TrafficLights {
             return actual_state;
         }
 
+        void assign_module(SevSegCounter::Controller& sevseg_counter) {
+            module_sevseg_counter = &sevseg_counter;
+        }
+
     private: // funcs
-        /**
-         * Muda o estado do semáforo.
-         * 
-         * @param state: estado ao qual o semáforo será modificado.
-         */
         void change_to_state(States state) {
             // 1. Define novo estado;
             actual_state = state;
@@ -115,7 +97,6 @@ class TrafficLights {
             }
         }
 
-        // Desliga todas as luzes primárias e de pedestre
         void clear_lights() {
             uint8_t scan_range = 3;
 

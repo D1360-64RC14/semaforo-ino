@@ -1,2 +1,10 @@
+# VSCode
 .pio/
 .vscode/
+
+# CLion
+.idea/
+cmake-build-debug/
+cmake-build-uno/
+CMakeLists.txt
+CMakeListsPrivate.txt

@@ -64,14 +64,14 @@ namespace TrafficLights {
              */
             void startTimer(uint64_t red_delay_ms, uint64_t green_delay_ms);
 
-            /**
-             * Finaliza o semáforo voltando ao sinal vermelho.
-             */
-            void restart();
-
             States get_actual_state();
 
         private: // funcs
+            /**
+             * Função de início. Feito para reduzir código.
+             */
+            void setup();
+
             /**
              * Muda o estado do semáforo.
              * 

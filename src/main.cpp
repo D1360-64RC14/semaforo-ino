@@ -16,10 +16,10 @@
 #define SENSOR_ECHO    9
 
 // Configurações de Funcionamento
-#define TRAFFIC_DISTANCE         20.0 // cm
+#define TRAFFIC_DISTANCE         60.0 // cm
 #define TRAFFIC_RED_DELAY        10   // seconds
-#define TRAFFIC_GREEN_DELAY      2    // seconds
-#define TRAFFIC_YELLOW_THRESHOLD 50   // %
+#define TRAFFIC_GREEN_DELAY      10   // seconds
+#define TRAFFIC_YELLOW_THRESHOLD 30   // %
 
 UltraSonicDistanceSensor ultrassonic(
     SENSOR_TRIGGER,
@@ -37,6 +37,8 @@ TrafficLights::Pins light_pins(
 TrafficLights::Controller traffic_lights(light_pins, TRAFFIC_YELLOW_THRESHOLD);
 
 void setup() {
+    pinMode(13, OUTPUT);
+
     Serial.begin(9600);
 }
 
@@ -57,17 +59,15 @@ void loop() {
 
     if (ultrassonic_distance < TRAFFIC_DISTANCE) {
         // Processo das luzes iniciado ao veículo entrar no range do sensor.
+        Serial.println("Objeto identificado. Iniciando contagem do semáforo.");
+        digitalWrite(13, HIGH);
+
         traffic_lights.startTimer(
             TRAFFIC_RED_DELAY * 1000,
             TRAFFIC_GREEN_DELAY * 1000
         );
 
-        // Luz verde continua ligada enquanto o veículo não deixar o semáforo.
-        while (ultrassonic_distance < TRAFFIC_DISTANCE) {
-            delay(500);
-            ultrassonic_update();
-        }
-
-        traffic_lights.restart();
+        Serial.println("Ciclo de semáforo completo.");
+        digitalWrite(13, LOW);
     }
 }

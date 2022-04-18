@@ -6,7 +6,7 @@ using namespace TrafficLights;
 Controller::Controller(Pins& light_pins):
     light_pins(light_pins)
 {
-    change_to_state(RED);
+    setup();
 }
 
 Controller::Controller(
@@ -16,6 +16,10 @@ Controller::Controller(
     light_pins(light_pins),
     yellow_light_threshold(yellow_light_threshold)
 {
+    setup();
+}
+
+void Controller::setup() {
     change_to_state(RED);
 }
 
@@ -29,14 +33,12 @@ void Controller::startTimer(
     change_to_state(RED);
     delay(red_wait);
 
+    change_to_state(GREEN);
+    delay(green_delay_ms);
+
     change_to_state(YELLOW);
     delay(yellow_wait);
 
-    change_to_state(GREEN);
-    delay(green_delay_ms);
-}
-
-void Controller::restart() {
     change_to_state(RED);
 }
 
